@@ -1,0 +1,282 @@
+diff --git i/pom.xml w/pom.xml
+index 4a2abab5..b42d3bd5 100644
+--- i/pom.xml
++++ w/pom.xml
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<project xmlns="http://maven.apache.org/POM/4.0.0"
+-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++         xmlns="http://maven.apache.org/POM/4.0.0"
+					xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 <modelVersion>4.0.0</modelVersion>
+ 
+@@ -132,7 +132,7 @@
+								 <version>2.22.2</version>
+								 <configuration>
+										 <excludes>
+-            <!---            <exclude>test.players.mcts.MultiTreeMCTSTests</exclude> -->
++                        <!---            <exclude>test.players.mcts.MultiTreeMCTSTests</exclude> -->
+										 </excludes>
+								 </configuration>
+						 </plugin>
+@@ -145,6 +145,13 @@
+								 <groupId>org.apache.maven.plugins</groupId>
+								 <artifactId>maven-resources-plugin</artifactId>
+								 <version>3.2.0</version>
++                <configuration>
++                    <resources>
++                        <resource>
++                            <directory>data</directory>
++                        </resource>
++                    </resources>
++                </configuration>
+						 </plugin>
+						 <plugin>
+								 <groupId>org.apache.maven.plugins</groupId>
+@@ -168,6 +175,7 @@
+																 </manifest>
+														 </archive>
+														 <finalName>FrontEnd</finalName>
++
+												 </configuration>
+												 <phase>package</phase>
+												 <goals>
+@@ -252,7 +260,6 @@
+		 </build>
+ 
+ 
+-
+ </project>
+
+diff --git i/src/main/java/utilities/ElapsedCpuTimer.java w/src/main/java/utilities/ElapsedCpuTimer.java
+index 0b250f8d..fa96689b 100644
+--- i/src/main/java/utilities/ElapsedCpuTimer.java
++++ w/src/main/java/utilities/ElapsedCpuTimer.java
+@@ -1,119 +1,113 @@
+ package utilities;
+ 
+-/**
+- * Created by diego on 26/02/14.
+- */
+-
+-
++/** Created by diego on 26/02/14. */
+ import java.lang.management.ManagementFactory;
+ import java.lang.management.ThreadMXBean;
+ 
+ public class ElapsedCpuTimer {
+ 
+-    protected static final boolean OS_WIN = System.getProperty("os.name").contains("Windows");
+-
+-    // allows for easy reporting of elapsed time
+-    protected ThreadMXBean bean = ManagementFactory.getThreadMXBean();
+-    protected long oldTime;
+-    protected long maxTime;
+-    protected int nIters;
+-
+-    public ElapsedCpuTimer() {
+-        reset();
+-    }
+-
+-    public void reset() {
+-        oldTime = getTime();
+-        nIters = 0;
+-    }
+-
+-    public long elapsed() {
+-        return getTime() - oldTime;
+-    }
+-
+-    public long elapsedNanos() {
+-        return elapsed();
+-    }
+-
+-    public long elapsedMillis() {
+-        return (long) (elapsed() / 1000000.0);
+-    }
+-
+-    public double elapsedSeconds() {
+-        return elapsedMillis()/1000.0;
+-    }
+-
+-    public double elapsedMinutes() {
+-        return elapsedMillis()/1000.0/60.0;
+-    }
+-
+-    public double elapsedHours() {
+-        return elapsedMinutes()/60.0;
+-    }
+-
+-    public void setMaxTimeMillis(long time) {
+-        maxTime = time * 1000000;
+-    }
+-
+-    public long remainingTimeMillis() {
+-        long diff = maxTime - elapsed();
+-        return (long) (diff / 1000000.0);
+-    }
+-
+-    public boolean exceededMaxTime() {
+-        return elapsed() > maxTime;
+-    }
+-
+-    /**
+-     * Calculates average time spent per iteration.
+-     * @param break_ms - optional parameter to add a safety check for early stopping, can be 0.
+-     * @return - true if enough budget is left for another iteration, false otherwise.
+-     */
+-    public boolean enoughBudgetIteration(int break_ms) {
+-        long average;
+-        if (nIters == 0) average = 0; else average = elapsedMillis() / nIters;
+-        long remaining = remainingTimeMillis();
+-        return remaining > 2 * average && remaining > break_ms;
+-    }
+-
+-    /**
+-     * We finished an iteration, so increasing the iteration count.
+-     */
+-    public void endIteration() {
+-        nIters++;
+-    }
+-
+-    public ElapsedCpuTimer copy()
+-    {
+-        ElapsedCpuTimer newCpuTimer = new ElapsedCpuTimer();
+-        newCpuTimer.maxTime = this.maxTime;
+-        newCpuTimer.oldTime = this.oldTime;
+-        newCpuTimer.bean = this.bean;
+-        newCpuTimer.nIters = this.nIters;
+-        return newCpuTimer;
+-    }
+-
+-    @Override
+-    public String toString() {
+-        // now resets the timer...
+-        String ret = elapsed() / 1000000.0 + " ms elapsed";
+-        //reset();
+-        return ret;
+-    }
+-
+-    protected long getTime() {
+-        return getCpuTime();
+-    }
+-
+-    protected long getCpuTime() {
+-        if(OS_WIN)
+-            return System.nanoTime();
+-
+-        if (bean.isCurrentThreadCpuTimeSupported()) {
+-            return bean.getCurrentThreadCpuTime();
+-        } else {
+-            throw new RuntimeException("CpuTime NOT Supported");
+-        }
+-    }
+-
+-}
+\ No newline at end of file
++  protected static final boolean OS_WIN = System.getProperty("os.name").contains("Windows");
++
++  // allows for easy reporting of elapsed time
++  protected ThreadMXBean bean = ManagementFactory.getThreadMXBean();
++  protected long oldTime;
++  protected long maxTime;
++  protected int nIters;
++
++  public ElapsedCpuTimer() {
++    reset();
++  }
++
++  public void reset() {
++    oldTime = getTime();
++    nIters = 0;
++  }
++
++  public long elapsed() {
++    return getTime() - oldTime;
++  }
++
++  public long elapsedNanos() {
++    return elapsed();
++  }
++
++  public long elapsedMillis() {
++    return (long) (elapsed() / 1000000.0);
++  }
++
++  public double elapsedSeconds() {
++    return elapsedMillis() / 1000.0;
++  }
++
++  public double elapsedMinutes() {
++    return elapsedMillis() / 1000.0 / 60.0;
++  }
++
++  public double elapsedHours() {
++    return elapsedMinutes() / 60.0;
++  }
++
++  public void setMaxTimeMillis(long time) {
++    maxTime = time * 1000000;
++  }
++
++  public long remainingTimeMillis() {
++    long diff = maxTime - elapsed();
++    return (long) (diff / 1000000.0);
++  }
++
++  public boolean exceededMaxTime() {
++    return elapsed() > maxTime;
++  }
++
++  /**
++   * Calculates average time spent per iteration.
++   *
++   * @param break_ms - optional parameter to add a safety check for early stopping, can be 0.
++   * @return - true if enough budget is left for another iteration, false otherwise.
++   */
++  public boolean enoughBudgetIteration(int break_ms) {
++    long average;
++    if (nIters == 0) average = 0;
++    else average = elapsedMillis() / nIters;
++    long remaining = remainingTimeMillis();
++    return remaining > 2 * average && remaining > break_ms;
++  }
++
++  /** We finished an iteration, so increasing the iteration count. */
++  public void endIteration() {
++    nIters++;
++  }
++
++  public ElapsedCpuTimer copy() {
++    ElapsedCpuTimer newCpuTimer = new ElapsedCpuTimer();
++    newCpuTimer.maxTime = this.maxTime;
++    newCpuTimer.oldTime = this.oldTime;
++    newCpuTimer.bean = this.bean;
++    newCpuTimer.nIters = this.nIters;
++    return newCpuTimer;
++  }
++
++  @Override
++  public String toString() {
++    // now resets the timer...
++    String ret = elapsed() / 1000000.0 + " ms elapsed";
++    // reset();
++    return ret;
++  }
++
++  protected long getTime() {
++    return getCpuTime();
++  }
++
++  protected long getCpuTime() {
++    //        if(OS_WIN)
++    return System.nanoTime();
++
++    //        if (bean.isCurrentThreadCpuTimeSupported()) {
++    //            return bean.getCurrentThreadCpuTime();
++    //        } else {
++    //            throw new RuntimeException("CpuTime NOT Supported");
++    //        }
++  }
++}
